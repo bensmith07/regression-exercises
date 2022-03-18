@@ -33,11 +33,16 @@ def plot_categorical_and_continuous_vars(train, categ_vars, cont_vars):
                           x=categ_var,
                           y=cont_var)
 
-            sample_df = train.sample(1000)
+            if len(train) > 1000:
+                train_sample = train.sample(1000)
 
-            plt.subplot(133)
-            sns.swarmplot(x=categ_var,
-                          y=cont_var,
-                          data=sample_df)
-
+                plt.subplot(133)
+                sns.swarmplot(x=categ_var,
+                              y=cont_var,
+                              data=train_sample)
+            else:
+                plt.subplot(133)
+                sns.swarmplot(x=categ_var,
+                              y=cont_var,
+                              data=train)
             plt.show()
