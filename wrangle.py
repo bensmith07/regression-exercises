@@ -134,8 +134,7 @@ def prep_telco_1(df):
         - total_charges (because it is merely a function of monthly charges and tenure)
     - changes values in the senior_citizen column to Yes/No instead of 1/0 for readability
     - creates new features, including: 
-        - tenure_quarters, which represents which quarter of service a customer is currently in (or was in at the time of churn). 
-        - tenure_years, which represents which year of service a customer is currently in (or was in at the time of churn). 
+        - expected_total_charges, which is monthly_charges multiplied by tenure_months
     '''
 
     # drop duplicate rows, if present
@@ -154,13 +153,16 @@ def prep_telco_1(df):
     # type_id columns are simply foreign key columns that have corresponding string values
     # customer_id is a primary key that is not useful for our analysis
     # total_charges is essentially a function of monthly_charges * tenure
-    df = df.drop(columns=['payment_type_id', 'internet_service_type_id', 'contract_type_id'])
+    df = df.drop(columns=['payment_type_id', 'internet_service_type_id', 'contract_type_id', 'customer_id'])
 
     # change senior citizen to object types Yes/No for exploration purposes
     df['senior_citizen'] = df.senior_citizen.map({1: 'Yes', 0: 'No'})
 
     # rename tenure column
     df = df.rename(columns={'tenure': 'tenure_months'})
+    
+    # create new feature monthly_charges * tenure_months
+    df['expected_total_charges'] = df.monthly_charges * df.tenure_months
 
     return df
 
