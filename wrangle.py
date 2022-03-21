@@ -6,6 +6,52 @@ import math
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler, QuantileTransformer
 
+def remove_outliers(df, k, col_list):
+    ''' remove outliers from a list of columns in a dataframe 
+        and return that dataframe
+    '''
+    
+    for col in col_list:
+
+        q1, q3 = df[col].quantile([.25, .75])  # get quartiles
+        
+        iqr = q3 - q1   # calculate interquartile range
+        
+        upper_bound = q3 + k * iqr   # get upper bound
+        lower_bound = q1 - k * iqr   # get lower bound
+
+        # return dataframe without outliers
+        
+        df = df[(df[col] > lower_bound) & (df[col] < upper_bound)]
+        
+    return df
+
+
+def remove_outliers_v2(df, k, col_list):
+    ''' remove outliers from a list of columns in a dataframe 
+        and return that dataframe
+    '''
+    # Create a column that will label our rows as containing an outlier value or not
+    num_obs = df.shape[0]
+    df['outlier'] = False
+    for col in col_list:
+
+        q1, q3 = df[col].quantile([.25, .75])  # get quartiles
+        
+        iqr = q3 - q1   # calculate interquartile range
+        
+        upper_bound = q3 + k * iqr   # get upper bound
+        lower_bound = q1 - k * iqr   # get lower bound
+
+        # update the outlier label any time that the value is outside of boundaries
+        df['outlier'] = np.where(((df[col] < lower_bound) | (df[col] > upper_bound)) & (df.outlier == False), True, df.outlier)
+    
+    df = df[df.outlier == False]
+    df.drop(columns=['outlier'], inplace=True)
+    print(f"Number of observations removed: {num_obs - df.shape[0]}")
+        
+    return df
+
 def get_zillow():
     
     filename = 'zillow.csv'
@@ -63,6 +109,8 @@ def prep_zillow_1(df):
     
     # changing fips codes to strings
     df['fips'] = df.fips.apply(lambda fips: '0' + str(int(fips)))
+    
+    df = remove_outliers(df, 1.5, ['bedrooms', 'bathrooms', 'sqft', 'year_built', 'tax_amount', 'tax_value'])
     
     return df
 
@@ -240,3 +288,6 @@ def get_telco_data():
     
     # return the dataframe
     return df
+
+
+
