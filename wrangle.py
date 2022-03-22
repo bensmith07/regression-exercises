@@ -106,11 +106,15 @@ def prep_zillow_1(df):
     
     # changing year from float to int
     df['year_built'] = df.year_built.apply(lambda year: int(year))
+    # adding a feature: age 
+    df['age'] = 2017 - df.year_built
+    # drop original year_built_column
+    df = df.drop(columns='year_built')
     
     # changing fips codes to strings
     df['fips'] = df.fips.apply(lambda fips: '0' + str(int(fips)))
     
-    df = remove_outliers(df, 1.5, ['bedrooms', 'bathrooms', 'sqft', 'year_built', 'tax_amount', 'tax_value'])
+    df = remove_outliers(df, 1.5, ['bedrooms', 'bathrooms', 'sqft', 'age', 'tax_amount', 'tax_value'])
     
     return df
 
@@ -138,7 +142,7 @@ def train_test_validate_split(df, test_size=.2, validate_size=.3, random_state=4
     return train, test, validate
 
 def scale_zillow(train, validate, test, scaler_type=MinMaxScaler()):    
-    features_to_scale = ['bedrooms', 'bathrooms', 'sqft', 'year_built', 'tax_amount']
+    features_to_scale = ['bedrooms', 'bathrooms', 'sqft', 'age', 'tax_amount']
     other_features = ['fips']
     target = 'tax_value'
 
