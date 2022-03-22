@@ -8,7 +8,6 @@ def plot_residuals(x, y, y_hat):
     dependent variable values, and a set of predictions for the dependent variable. it then displays a plot
     of residuals for the given values. 
     '''
-    plt.figure(figsize=(12,8))
     plt.scatter(x, y - y_hat)
     plt.axhline(y = 0, ls = ':')
     plt.show()
